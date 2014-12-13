@@ -1,249 +1,382 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Aqui Falta Água</title>
+<title>ÁguaNossa</title>
 <meta name="viewport" content="initial-scale=1.0, user-scalable=no">
 <meta charset="utf-8">
+
+<link rel="stylesheet" href="css/bootstrap.min.css">
 <style>
+@font-face {
+	font-family: myFirstFont;
+	src: url('fonts/questrial-regular.ttf');
+}
+
+body {
+	font-family: myFirstFont;
+}
+
 #header {
 	padding: 20px;
 }
 
+#aguanossa-logo {
+	width: 300px;
+}
+
+#logo-wrapper {
+	margin-left: auto;
+	margin-right: auto;
+	width: 300px;
+}
+
+#intro-container {
+	text-align: center;
+	font-size: 28px;
+	padding: 10px;
+}
+
 #register-container {
-	width: 500px;
+	text-align: center;
+	font-size: 28px;
+	padding: 10px;
 }
 
-#register-panel {
-	margin: 10px;
+#map-container {
+	padding: 15px;
 }
 
-#register-panel .panel-body {
-	padding: 23px;
+#info-container {
+	padding: 12px;
 }
 
-.icon-form-group .form-control {
-	padding: 6px 30px;
+#detailed-info-container {
+	border: 1px solid rgba(0, 0, 0, 0.2);;
+	border-radius: 4px;
+	padding: 10px;
+	font-size: 28px;
 }
 
-#register-panel .form-icon {
-	position: absolute;
-	top: 9px;
-	left: 25px;
+#links-container {
+	padding-right: 0px;
 }
 
-#register-panel input:-webkit-autofill {
-	-webkit-box-shadow: 0 0 0 50px white inset;
-	-webkit-text-fill-color: #333;
+#detailed-info-container h1 {
+	font-weight: bold;
+}
+
+#register-button {
+	font-size: 28px;
+	width: 255px;
+	padding: 10px;
+}
+
+.aguanossa-button {
+	font-size: 20px;
+	width: 100%;
+	padding: 16px;
+}
+
+#notification-counter {
+	font-weight: bold;
+}
+
+#map-canvas {
+	height: 400px;
+	margin: 0px;
+	padding: 0px;
+}
+
+#about-modal-dialog {
+	font-size: 18px;
+	width: 800px;
+}
+
+#cordel-modal-dialog {
+	font-size: 18px;
+	width: 490px;
+}
+
+.modal .modal-body {
+	max-height: 420px;
+	overflow-y: auto;
+}
+
+#share-container {
+	font-size: 20px;
+	padding: 16px;
+	height: 63px;
+	border: 1px solid rgba(0, 0, 0, 0.2);;
+	border-radius: 4px;
+	margin-bottom: 10px;
+	text-align: center;
+}
+
+.share-icons {
+	margin-left: 10px;
+}
+
+footer {
+	border-top: 1px solid rgba(0, 0, 0, 0.2);
+	margin-top: 30px;
+}
+
+footer .container {
+	padding-top: 20px;
+	padding-bottom: 20px;
+	text-align: center;
 }
 </style>
-<link rel="stylesheet" href="css/bootstrap.min.css">
+
+<script
+	src="https://maps.googleapis.com/maps/api/js?libraries=places&key=AIzaSyBbHptoqkG1n7IRMP8Gh8eQsP2aQD0iOfI&sensor=true"></script>
 <script src="js/jquery-2.1.1.min.js" type="text/javascript"></script>
-<script src="js/jquery.validate.min.js" type="text/javascript"></script>
 <script src="js/bootstrap.min.js" type="text/javascript"></script>
 </head>
 
 <body>
 	<div class="container">
 		<div id="header" class="row">
-			<h1 class="text-center">
-				<strong>Aqui Falta Água</strong>
-			</h1>
+			<div id="logo-wrapper">
+				<img id="aguanossa-logo" src="images/aguanossa-logo.png">
+			</div>
 		</div>
-		<div id="register-container" class="container">
-			<div id="register-panel" class="panel panel-primary">
-				<div class="panel-heading">Cadastro de nova conta</div>
-				<div class="panel-body">
-					<form id="register-form" class="form-horizontal" role="form">
-						<div class="icon-form-group">
-							<div class="form-group has-feedback">
-								<div class="col-xs-12">
-									<span class="form-icon glyphicon glyphicon-envelope"></span> <input
-										id="input-email" name="inputEmail" class="form-control"
-										placeholder="E-mail"> <span
-										class="glyphicon form-control-feedback"></span>
-								</div>
-							</div>
-							<div class="form-group has-feedback">
-								<div class="col-xs-12">
-									<span class="form-icon glyphicon glyphicon-user"></span> <input
-										id="input-name" name="inputName" type="text"
-										class="form-control" placeholder="Nome completo"> <span
-										class="glyphicon form-control-feedback"></span>
-								</div>
-							</div>
-							<div class="form-group has-feedback">
-								<div class="col-xs-12">
-									<span class="form-icon glyphicon glyphicon-lock"></span> <input
-										id="input-password" name="inputPassword" type="password"
-										class="form-control" placeholder="Senha"> <span
-										class="glyphicon form-control-feedback"></span>
-								</div>
-							</div>
-						</div>
-						<fieldset>
-							<!-- Form Name -->
-							<legend style="margin-bottom: 0px;">Endereço</legend>
-							<span class="help-block">*Para participar do Aqui Falta
-								Água é necessário informar seu endereço... [TODO]</span>
+		<div id="intro-container" class="row">
+			<span>Até o momento </span> <span id="notification-counter">x</span>
+			<span> faltas de água foram registradas. Contribua informando:</span>
+		</div>
+		<div id="register-container" class="row">
+			<a id="register-button" class="btn btn-primary"
+				href="https://docs.google.com/forms/d/1l5rtDV_j4lWIs4e-k2GsOqCIVjX5JbAYArhBgckHpw8"
+				target="_blank">Onde faltou água?</a>
+		</div>
+		<div id="map-container" class="row">
+			<div id="map-canvas"></div>
+		</div>
+		<div id="info-container" class="row">
+			<div id="detailed-info-container" class="col-xs-7">
+				<h1>Como funciona</h1>
+				<p class="lead">A falta de água passou a fazer parte da
+					realidade de todo cidadão. Mapeando a falta de água, com a
+					contribuição de todos, será possível identificar as necessidades de
+					melhoria!</p>
+				<h1>O que podemos fazer</h1>
+				<p class="lead">Informar o endereço e data/hora da falta de
+					água, e também responder sobre os impactos em nossas rotinas!
+				</h1>
+				<h1>Como entrar em contato</h1>
+				<p class="lead">
+					Pelo e-mail: <i>aguanossa.cg@gmail.com</i>
+				</p>
+			</div>
+			<div id="links-container" class="col-xs-5">
+				<p>
+					<a class="btn btn-default aguanossa-button" data-toggle="modal"
+						data-target="#cordel-modal">Leia o Cordel "Somos responsável"
+					</a>
+				</p>
+				<p>
+					<a class="btn btn-default aguanossa-button disabled">Veja
+						alguns resultados (em construção)</a>
+				</p>
+				<p>
+					<a class="btn btn-default aguanossa-button"
+						href="https://www.facebook.com/pages/ÁguaNossa/1381791065449679"
+						target="_blank">Fan Page no Facebook</a>
+				</p>
+				<p>
+					<a class="btn btn-default aguanossa-button"
+						href="http://www.colab.re/" target="_blank">Colab.re</a>
 
-							<!-- Text input-->
-							<div class="form-group has-feedback">
-								<label class="col-xs-2 control-label" for="textinput">Endereço:</label>
-								<div class="col-xs-10">
-									<input type="text" name="inputEndereco"
-										placeholder="Rua, número, bairro" class="form-control">
-									<span class="glyphicon form-control-feedback"></span>
-								</div>
-							</div>
+				</p>
+				<div id="share-container">
+					<p>
+						Ajude a divulgar o projeto no: <a
+							href="http://www.facebook.com/sharer.php?u=https://contribua.org/aguanossa'"
+							target="_blank" class="share-icons"
+							title="Compartilhe no Facebook"><img
+							src="images/facebook.png" /></a> <a
+							href="http://twitter.com/share?text=Contribua%20com%20o%20%C3%81guaNossa%2C%20informando%20a%20falta%20de%20%C3%A1gua%20em%20Campina%20Grande%21&url=https://contribua.org/aguanossa"
+							target="_blank" class="share-icons"
+							title="Compartilhe no Twitter"><img src="images/twitter.png" /></a>
+						<a
+							href="https://plus.google.com/share?url=https://contribua.org/aguanossa'"
+							target="_blank" class="share-icons"
+							title="Compartilhe no Google+"><img src="images/google.png" /></a>
 
-							<!-- Text input-->
-							<div class="form-group has-feedback">
-								<label class="col-xs-2 control-label" for="textinput">Cidade:</label>
-								<div class="col-xs-10">
-									<input type="text" name="inputCidade" placeholder="Cidade"
-										class="form-control"> <span
-										class="glyphicon form-control-feedback"></span>
-								</div>
-							</div>
+					</p>
+				</div>
+				<p>
+					<a class="btn btn-default aguanossa-button" data-toggle="modal"
+						data-target="#about-modal">Sobre</a>
+				</p>
+			</div>
+		</div>
+	</div>
 
-							<!-- Text input-->
-							<div class="form-group has-feedback">
-								<label class="col-xs-2 control-label" for="textinput">Estado:</label>
-								<div class="col-xs-10">
-									<input type="text" name="inputEstado" placeholder="Estado"
-										class="form-control"> <span
-										class="glyphicon form-control-feedback"></span>
-								</div>
-							</div>
-							<div class="form-group has-feedback">
-								<label class="col-xs-2 control-label pull-left" for="textinput">CEP:*</label>
-								<div class="col-xs-5">
-									<input type="text" name="inputCEP" placeholder="00000-000"
-										class="form-control"> <span
-										class="glyphicon form-control-feedback"></span>
-									<!-- <input type="text" id="CEP" placeholder="Informe o CEP" required pattern="\d{5}-?\d{3}" data-mask="99999-999"> -->
-								</div>
-							</div>
-							<div class="form-group" style="margin-bottom: 0px;">
-								<div class="col-xs-12"
-									style="text-align: center; margin-bottom: 0px;">
-									<button type="submit" class="btn btn-success">Cadastre-se</button>
-								</div>
-							</div>
-						</fieldset>
-					</form>
+	<script src="js/maps.js" type="text/javascript"></script>
+
+
+
+	<div id="cordel-modal" class="modal fade">
+		<div id="cordel-modal-dialog" class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span>
+					</button>
+					<h1 class="modal-title">
+						<strong> Cordel "Somos responsável" </strong>
+					</h1>
+				</div>
+				<div id="modal-container" class="modal-body">
+					<h4>
+						<strong>Autor: José Francisco Pereira</strong>
+					</h4>
+					<h4>
+						<strong>Campina Grande, PB – 28/11/2014</strong>
+					</h4>
+					<br>
+					<p>01 – Somos todos responsável</p>
+					<p>Ao que venha acontecer.</p>
+					<p>Cuidar do Meio Ambiente</p>
+					<p>É obrigação e dever.</p>
+					<p>De cada um cidadão</p>
+					<p>Em zelar por sua nação</p>
+					<p>Isso sim é que é viver.</p>
+					<br>
+					<p>02 – Cuide bem da natureza</p>
+					<p>Porque ela agora estar.</p>
+					<p>Neste momento doente</p>
+					<p>Precisa-se dela cuidar.</p>
+					<p>Pois estar acontecendo</p>
+					<p>Que ela estar morrendo</p>
+					<p>Sem ninguém para a salvar.</p>
+					<br>
+					<p>03 – A poluição essa é total</p>
+					<p>A todo momento Queimadas.</p>
+					<p>As Leis que as protegem</p>
+					<p>Todas maus elaboradas.</p>
+					<p>Quando pega o infrator</p>
+					<p>Paga ele um pouco valor</p>
+					<p>Vai embora as risadas.</p>
+					<br>
+					<p>04 – Com a água nem se fala</p>
+					<p>Aos pouco vai acabando.</p>
+					<p>Já é grande a escassez</p>
+					<p>E o povo nem se ligando.</p>
+					<p>Que a coisa ruim estar</p>
+					<p>E pior ainda vai ficar</p>
+					<p>Com a natureza mudando.</p>
+					<br>
+					<p>05 – Dizem a culpa é do governo</p>
+					<p>Da sua administração.</p>
+					<p>Não cria política nova</p>
+					<p>Não achando uma solução.</p>
+					<p>Para o caso solucionar</p>
+					<p>E com o problema acabar</p>
+					<p>Mudando a situação.</p>
+					<br>
+					<p>06 – Primeiro que tudo o povo</p>
+					<p>Tente fazer bem direito.</p>
+					<p>Economizando a água</p>
+					<p>Esse é o único jeito.</p>
+					<p>De garantir no futuro</p>
+					<p>Que estejamos seguro</p>
+					<p>E tirarmos bom proveito.</p>
+					<br>
+					<p>07 – Proveito das maravilhas</p>
+					<p>Que poderemos gozar.</p>
+					<p>Por um futuro melhor</p>
+					<p>De sabermos economizar.</p>
+					<p>Esse liquido precioso</p>
+					<p>Para nós é saboroso</p>
+					<p>E ao gosto é salutar.</p>
+					<br>
+					<p>08 – A culpa não é só governo</p>
+					<p>Tem também a população.</p>
+					<p>Se o governo não investe</p>
+					<p>Para mudar a situação.</p>
+					<p>O povo não quer cooperar</p>
+					<p>Só o que sabem é gastar</p>
+					<p>Essa é a minha opinião.</p>
+					<br>
+					<p>09 – Unidos governo e povo</p>
+					<p>Poderá enfim ganhar.</p>
+					<p>O governo trabalhando</p>
+					<p>E o povo a economizar.</p>
+					<p>A CAGEPA fiscalizando</p>
+					<p>O povo os gatos tirando</p>
+					<p>As contas em dia pagar.</p>
+					<br>
+					<p>10 – Basta a água dar o valor</p>
+					<p>Que tanto lhe é devido.</p>
+					<p>Não lavando as calçadas</p>
+					<p>Assim estará garantido.</p>
+					<p>Que ela não irá faltar</p>
+					<p>É você quem vai ganhar</p>
+					<p>Pois nem tudo tá perdido.</p>
+				</div>
+				<div class="modal-footer">
+					<a type="button" class="btn btn-default" data-dismiss="modal"
+						style="font-size: 18px;">Fechar</a>
 				</div>
 			</div>
 		</div>
 	</div>
 
-	<script type="text/javascript" charset="utf-8">
-		// override jquery validate plugin defaults
-		$.validator.setDefaults({
-			highlight : function(element) {
-				$(element).closest('.form-group').addClass('has-error');
-				$(element).closest('.form-group').find(".form-icon").css(
-						"color", "#a94442");
+	<div id="about-modal" class="modal fade">
+		<div id="about-modal-dialog" class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">
+						<span aria-hidden="true">&times;</span><span class="sr-only">Fechar</span>
+					</button>
+					<h1 class="modal-title">
+						<strong> Sobre o projeto </strong>
+					</h1>
+				</div>
+				<div id="modal-container" class="modal-body">
+					<p>Esta página foi desenvolvida como parte da pesquisa “Análise
+						da Injustiça Ambiental no Abastecimento de Água em Espaços
+						Urbanos”, desenvolvida no Programa de Pós-graduação em Recursos
+						Naturais, com o apoio do Laboratório de Sistemas Distribuídos –
+						LSD, da Unidade Acadêmica de Ciências da Computação, ambos da
+						UFCG.</p>
+					<p>Esta página também integra o projeto “Informação para a
+						participação da sociedade na gestão dos recursos hídricos:
+						variabilidade hidrológica no Semiárido”, conduzido pelo grupo de
+						pesquisa em Gestão Integrada dos Recursos Hídricos Superficiais e
+						Subterrâneos, da Unidade Acadêmica de Engenharia Civil, da UFCG.</p>
+				</div>
+				<div class="modal-footer">
+					<a type="button" class="btn btn-default" data-dismiss="modal"
+						style="font-size: 18px;">Fechar</a>
+				</div>
+			</div>
+		</div>
+	</div>
 
-				$(element).closest('.form-group').find(".form-control-feedback")
-						.removeClass("glyphicon-ok");
-				$(element).closest('.form-group').find(".form-control-feedback")
-						.addClass("glyphicon-remove");
-
-			},
-			unhighlight : function(element) {
-				$(element).closest('.form-group').removeClass('has-error');
-				$(element).closest('.form-group').find(".form-control-feedback")
-				.removeClass("glyphicon-remove");
-			},
-			errorElement : 'span',
-			errorClass : 'help-block'
-		});
-
-		$.validator.addMethod("cep", function(value, element) {
-			return this.optional(element)
-					|| /^[0-9]{2}[0-9]{3}-[0-9]{3}$/.test(value);
-		}, "Your entered data is not cep");
-
-		$(document)
-				.ready(
-						function() {
-							$('#register-form')
-									.validate(
-											{
-												rules : {
-													inputEmail : {
-														required : true,
-														email : true
-													},
-													inputName : {
-														required : true
-													},
-													inputPassword : {
-														required : true
-													},
-													inputEndereco : {
-														required : true
-													},
-													inputCidade : {
-														required : true
-													},
-													inputEstado : {
-														required : true
-													},
-													inputCEP : {
-														required : true,
-														cep : true
-													}
-												},
-												messages : {
-													inputEmail : {
-														required : "Insira o seu e-mail para contato.",
-														email : "Insira um e-mail válido."
-													},
-													inputName : {
-														required : "Insira o seu nome."
-													},
-													inputPassword : {
-														required : "Insira uma senha."
-													},
-													inputEndereco : {
-														required : "Insira seu endereço."
-													},
-													inputCidade : {
-														required : "Insira sua cidade."
-													},
-													inputEstado : {
-														required : "Insira seu estado."
-													},
-													inputCEP : {
-														required : "Insira um CEP.",
-														cep : "Insira um CEP válido."
-													}
-												},
-												success : function(element) {
-													element
-															.closest(
-																	'.form-group')
-															.removeClass(
-																	'has-error')
-															.addClass(
-																	'has-success');
-													element
-															.closest(
-																	'.form-group')
-															.find(
-																	".form-control-feedback")
-															.addClass(
-																	"glyphicon-ok");
-
-													element.closest(
-															'.form-group')
-															.find(".form-icon")
-															.css("color",
-																	"#3c763d");
-												}
-											});
-						});
-	</script>
+	<footer>
+		<div class="container">
+			<div class="row">
+				<div class="col-xs-3">
+					<a href="http://www.ctrn.ufcg.edu.br/" target="_blank"><img
+						src="images/ctrn-logo.png"></a>
+				</div>
+				<div class="col-xs-3">
+					<a href="http://www.ufcg.edu.br/index1.php" target="_blank"><img
+						src="images/ufcg-logo.png" style="width: 115px;"></a>
+				</div>
+				<div class="col-xs-3">
+					<a href="http://www.lsd.ufcg.edu.br/" target="_blank"><img
+						src="images/lsd-logo.png" style="width: 130px;"></a>
+				</div>
+				<div class="col-xs-3">
+					<a href="http://www.computacao.ufcg.edu.br" target="_blank"><img
+						src="images/computacao-logo.png" style="width: 168px;"></a>
+				</div>
+			</div>
+		</div>
+	</footer>
 </html>
