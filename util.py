@@ -12,8 +12,13 @@ def find_index(headers, header_name):
 def geocode(addr):
     url = "http://maps.googleapis.com/maps/api/geocode/json?address=%s&sensor=true" %   (urllib.quote(addr.replace(' ', '+')))
     data = urllib.urlopen(url).read()
-    info = json.loads(data).get("results")[0].get("geometry").get("location")  
-    return str(info['lat']) + " / " + str(info['lng'])
+    results = json.loads(data).get("results")
+
+    if (len(results) == 0):
+        return ""
+    else:
+        info = results[0].get("geometry").get("location")
+        return str(info['lat']) + " / " + str(info['lng'])
 
 def cep_to_address(cep):
     url = "http://cep.republicavirtual.com.br/web_cep.php?cep=" + cep + "&formato=query_string"
