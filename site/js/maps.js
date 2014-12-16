@@ -1,5 +1,6 @@
-var map;
+var map, heatmap;
 var markers = [];
+var lat_lng_array = [];
 
 var DEFAULT_MARKER_ICON = "images/aguanossa-marker.png";
 var UPDATE_INTERVAL = 300000;
@@ -7,7 +8,7 @@ var UPDATE_INTERVAL = 300000;
 function initialize() {
 	googleMapsInit();
 	loadNotifications();
-	
+
 	setInterval(loadNotifications, UPDATE_INTERVAL);
 }
 
@@ -19,6 +20,81 @@ function googleMapsInit() {
 
 	map = new google.maps.Map(document.getElementById('map-canvas'),
 			mapOptions);
+	
+	var showHeatMap = document.createElement('div');
+	var homeControl = new HeatMapControl(showHeatMap, map);
+	var showCircleMap = document.createElement('div');
+	var circleControl = new CircleMapControl(showCircleMap, map);
+
+	showHeatMap.index = 1;
+	showCircleMap.index = 1;
+
+	map.controls[google.maps.ControlPosition.TOP_RIGHT].push(showCircleMap);
+	map.controls[google.maps.ControlPosition.TOP_RIGHT].push(showHeatMap);
+}
+
+function HeatMapControl(controlDiv, map) {
+	// Set CSS styles for the DIV containing the control
+	// Setting padding to 5 px will offset the control
+	// from the edge of the map
+	controlDiv.style.padding = '4px';
+
+	// Set CSS for the control border
+	var controlUI = document.createElement('div');
+	controlUI.style.backgroundColor = 'white';
+	controlUI.style.borderStyle = 'solid';
+	controlUI.style.borderWidth = '1px';
+	controlUI.style.cursor = 'pointer';
+	controlUI.style.textAlign = 'center';
+	controlUI.title = 'Clique para mostrar o mapa de calor';
+	controlDiv.appendChild(controlUI);
+
+	// Set CSS for the control interior
+	var controlText = document.createElement('div');
+	controlText.style.fontFamily = 'questrialRegular';
+	controlText.style.fontSize = '15px';
+	controlText.style.paddingLeft = '5px';
+	controlText.style.paddingRight = '5px';
+	controlText.innerHTML = '<b>Mapa de calor</b>';
+	controlUI.appendChild(controlText);
+
+	// Setup the click event listeners: simply set the map to
+	// Chicago
+	google.maps.event.addDomListener(controlUI, 'click', function() {
+		toggleHeatmap();
+	});
+}
+
+function CircleMapControl(controlDiv, map) {
+	// Set CSS styles for the DIV containing the control
+	// Setting padding to 5 px will offset the control
+	// from the edge of the map
+	controlDiv.style.padding = '4px';
+
+	// Set CSS for the control border
+	var controlUI = document.createElement('div');
+	controlUI.style.backgroundColor = 'white';
+	controlUI.style.borderStyle = 'solid';
+	controlUI.style.borderWidth = '1px';
+	controlUI.style.cursor = 'pointer';
+	controlUI.style.textAlign = 'center';
+	controlUI.title = 'Clique para mostrar o mapa de círculos gradientes';
+	controlDiv.appendChild(controlUI);
+
+	// Set CSS for the control interior
+	var controlText = document.createElement('div');
+	controlText.style.fontFamily = 'questrialRegular';
+	controlText.style.fontSize = '15px';
+	controlText.style.paddingLeft = '5px';
+	controlText.style.paddingRight = '5px';
+	controlText.innerHTML = '<b>Mapa de círculos</b>';
+	controlUI.appendChild(controlText);
+
+	// Setup the click event listeners: simply set the map to
+	// Chicago
+	google.maps.event.addDomListener(controlUI, 'click', function() {
+		toggleCirclemap();
+	});
 }
 
 function loadNotifications() {
@@ -27,30 +103,72 @@ function loadNotifications() {
 		success : function(data) {
 			deleteMarkers();
 			var notifications = $.parseJSON(data);
-			var count_notifications = 0;
+
+			lat_lng_array = [];
+
 			for (var i = 0; i < notifications.length; i++) {
 				var notification = notifications[i];
 				if (notification == "") {
 					continue;
 				}
-				processNotification(notification);
-				count_notifications++;
+				lat_lng_array.push(processNotification(notification));
 			}
-			
-			$("#notification-counter").text(count_notifications);
+
+			var pointArray = new google.maps.MVCArray(lat_lng_array);
+
+			heatmap = new google.maps.visualization.HeatmapLayer({
+				data: pointArray,
+				radius: 25
+			});
+
+			//heatmap.setMap(map);
+			placeDefaultMarkers();
+			$("#notification-counter").text(lat_lng_array.length);
 		}
 	});
+}
+
+function toggleHeatmap() {
+	if (heatmap.getMap() == null){
+		deleteMarkers();
+		heatmap.setMap(map);
+	} else {
+		heatmap.setMap(null);
+		placeDefaultMarkers();
+	}
+}
+
+function toggleCirclemap() {
+	heatmap.setMap(null);
+	if (markers.length != 0 && markers[0].type == "circle"){
+		deleteMarkers();
+		placeDefaultMarkers();
+	} else {
+		deleteMarkers();
+		placeCircles();
+	}
 }
 
 function processNotification(notification) {
 	var lat_lng = notification.split("/");
 	var lat = parseFloat(lat_lng[0].trim());
 	var lng = parseFloat(lat_lng[1].trim());
-	placeMarker(new google.maps.LatLng(lat, lng));
-	markers.push(placeMarker(new google.maps.LatLng(lat, lng)));
+	return new google.maps.LatLng(lat, lng);
 }
 
-function placeMarker(location) {
+function placeDefaultMarkers() {
+	for (var i = 0; i < lat_lng_array.length; i++) {
+		markers.push(placeDefaultMarker(lat_lng_array[i]));	
+	}
+}
+
+function placeCircles() {
+	for (var i = 0; i < lat_lng_array.length; i++) {
+		markers.push(placeCircle(lat_lng_array[i]));	
+	}
+}
+
+function placeDefaultMarker(location) {
 	var marker = new google.maps.Marker({
 		position : location,
 		draggable : false,
@@ -58,9 +176,24 @@ function placeMarker(location) {
 		animation: google.maps.Animation.DROP,
 		icon : DEFAULT_MARKER_ICON,
 		//title : "Hello World!"
-		reports : []
+		type: "default"
 	});
 	return marker;
+}
+
+function placeCircle(location) {
+	var circulo = {
+			strokeColor: '#d39b07',
+			strokeOpacity: 0.8,
+			strokeWeight: 1.2,
+			fillColor: '#d39b07',
+			fillOpacity: 0.2,
+			map: map,
+			center: location,
+			radius: 125,
+			type: "circle"
+	};
+	return new google.maps.Circle(circulo);
 }
 
 function setAllMap(map) {
