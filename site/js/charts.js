@@ -1,9 +1,16 @@
+String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+}
+
 function generateBarChart(data) {
 
 	var columns = ['data1'].concat(data.values);
 	var chart = c3.generate({
+		 size: {
+		        height: 600
+		    },
 		padding: {
-			left: 90,
+			left: 110,
 		},
 		bindto : data.element,
 		data : {
@@ -70,7 +77,7 @@ function processFaltaPerDisctrict() {
 
 		if (district_name == "") continue;
 
-		var clean_dist_name = removeSpecialCharacters(district_name.toLowerCase());
+		var clean_dist_name = removeSpecialCharacters(district_name.trim().toLowerCase());
 		var index_of_district = findDistrict(falta_per_district, clean_dist_name);
 
 		if (index_of_district == -1) {
@@ -92,7 +99,7 @@ function processFaltaPerDisctrict() {
 	for (var i = 0; i < falta_per_district.length; i++) {
 		var district = falta_per_district[i];
 		falta_values.push(district.faltas_count);
-		district_names.push(district.name);
+		district_names.push(district.name.capitalize());
 	}
 
 	return {

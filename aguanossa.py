@@ -39,8 +39,8 @@ def setup():
     return
 
 def read_worksheet():
-   gc = gspread.login('aguanossa.cg@gmail.com', '4gu4n6ss4-cg')
-   sht1 = gc.open_by_key('1zK_UaN9M4qtBjg1v6vRxBye2TV0aRA8Mckc_nk7fCS8')
+   gc = gspread.login('', '')
+   sht1 = gc.open_by_key('1Y4RXKYvdFKCtf6RMyQCjSS7iN-5AfyedfTbJa_vDO5g')
    worksheet = sht1.get_worksheet(0)
    return worksheet
 
