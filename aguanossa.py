@@ -7,7 +7,6 @@ from threading import Thread
 import time
 
 notifications = []
-lat_lng_array = []
 worksheet = None
 
 ADDRESS_HEADER = 'Nome da rua:'.decode('utf-8')
@@ -40,7 +39,7 @@ def setup():
     return
 
 def read_worksheet():
-   gc = gspread.login('', '')
+   gc = gspread.login('aguanossa.cg@gmail.com', '4gu4n6ss4-cg')
    sht1 = gc.open_by_key('1zK_UaN9M4qtBjg1v6vRxBye2TV0aRA8Mckc_nk7fCS8')
    worksheet = sht1.get_worksheet(0)
    return worksheet
@@ -55,7 +54,7 @@ def notification_thread():
             time.sleep(UPDATE_TIME)
 
 def retrieve_notifications():
-    global notifications, lat_lng_array, worksheet
+    global notifications, worksheet
     
     worksheet = read_worksheet()
     rows = worksheet.get_all_values()
@@ -64,7 +63,6 @@ def retrieve_notifications():
     for i in range(current_index, len(rows)):
         notification = process_worksheet_row(rows[i], i+1)
         notifications.append(notification)
-        lat_lng_array.append(notification['lat_lng'])
 
 def process_worksheet_row(row, worksheet_row_index):
     notification = dict(cep = row[CEP_INDEX], address = row[ADDRESS_INDEX], number = row[NUMBER_INDEX], number_for_cep= row[NUMBER_FOR_CEP_INDEX], district = row[DISTRICT_INDEX], state = row[STATE_INDEX], city = row[CITY_INDEX], lat_lng = row[LAT_LNG_INDEX])
@@ -102,4 +100,4 @@ setup()
 
 @app.route("/get_notifications")
 def get_notifications():
-    return json.dumps(lat_lng_array)
+    return json.dumps(notifications)

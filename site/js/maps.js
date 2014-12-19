@@ -1,6 +1,7 @@
 var map, heatmap;
 var markers = [];
 var lat_lng_array = [];
+var notifications = [];
 
 var DEFAULT_MARKER_ICON = "images/aguanossa-marker.png";
 var UPDATE_INTERVAL = 300000;
@@ -46,7 +47,7 @@ function HeatMapControl(controlDiv, map) {
 	controlUI.style.borderWidth = '1px';
 	controlUI.style.cursor = 'pointer';
 	controlUI.style.textAlign = 'center';
-	controlUI.title = 'Clique para mostrar o mapa de calor';
+	controlUI.title = 'Clique para mostrar o mapa de intensidade';
 	controlDiv.appendChild(controlUI);
 
 	// Set CSS for the control interior
@@ -55,7 +56,7 @@ function HeatMapControl(controlDiv, map) {
 	controlText.style.fontSize = '15px';
 	controlText.style.paddingLeft = '5px';
 	controlText.style.paddingRight = '5px';
-	controlText.innerHTML = '<b>Mapa de calor</b>';
+	controlText.innerHTML = '<b>Mapa de Intensidade</b>';
 	controlUI.appendChild(controlText);
 
 	// Setup the click event listeners: simply set the map to
@@ -87,7 +88,7 @@ function CircleMapControl(controlDiv, map) {
 	controlText.style.fontSize = '15px';
 	controlText.style.paddingLeft = '5px';
 	controlText.style.paddingRight = '5px';
-	controlText.innerHTML = '<b>Mapa de círculos</b>';
+	controlText.innerHTML = '<b>Mapa de Círculos</b>';
 	controlUI.appendChild(controlText);
 
 	// Setup the click event listeners: simply set the map to
@@ -102,26 +103,25 @@ function loadNotifications() {
 		url : '/aguanossa-backend/get_notifications',
 		success : function(data) {
 			deleteMarkers();
-			var notifications = $.parseJSON(data);
+			notifications = $.parseJSON(data);
 
 			lat_lng_array = [];
 
 			for (var i = 0; i < notifications.length; i++) {
 				var notification = notifications[i];
-				if (notification == "") {
+				if (notification.lat_lng == "") {
 					continue;
 				}
-				lat_lng_array.push(processNotification(notification));
+				lat_lng_array.push(processLatAndLng(notification.lat_lng));
 			}
 
 			var pointArray = new google.maps.MVCArray(lat_lng_array);
 
 			heatmap = new google.maps.visualization.HeatmapLayer({
 				data: pointArray,
-				radius: 25
+				radius: 30
 			});
 
-			//heatmap.setMap(map);
 			placeDefaultMarkers();
 			$("#notification-counter").text(lat_lng_array.length);
 		}
@@ -149,8 +149,8 @@ function toggleCirclemap() {
 	}
 }
 
-function processNotification(notification) {
-	var lat_lng = notification.split("/");
+function processLatAndLng(stringLatAndLng) {
+	var lat_lng = stringLatAndLng.split("/");
 	var lat = parseFloat(lat_lng[0].trim());
 	var lng = parseFloat(lat_lng[1].trim());
 	return new google.maps.LatLng(lat, lng);
@@ -173,7 +173,7 @@ function placeDefaultMarker(location) {
 		position : location,
 		draggable : false,
 		map : map,
-		animation: google.maps.Animation.DROP,
+		//animation: google.maps.Animation.DROP,
 		icon : DEFAULT_MARKER_ICON,
 		//title : "Hello World!"
 		type: "default"
