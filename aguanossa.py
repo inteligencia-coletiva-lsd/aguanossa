@@ -5,6 +5,7 @@ import json
 import gspread
 from threading import Thread
 import time
+import os
 
 notifications = []
 worksheet = None
@@ -20,9 +21,10 @@ LAT_LNG_HEADER = 'Latitude / Longitude'.decode('utf-8')
 
 UPDATE_TIME = 2 # seconds
 
-def setup():
+def setup(app):
     global ADDRESS_INDEX, CEP_INDEX, NUMBER_INDEX, NUMBER_FOR_CEP_INDEX, DISTRICT_INDEX, STATE_INDEX, CITY_INDEX, LAT_LNG_INDEX
     
+    configure_app(app)
     worksheet = read_worksheet()    
     headers = worksheet.row_values(1)
     ADDRESS_INDEX = find_index(headers, ADDRESS_HEADER)
@@ -32,15 +34,23 @@ def setup():
     DISTRICT_INDEX = find_index(headers, DISTRICT_HEADER)
     STATE_INDEX = find_index(headers, STATE_HEADER)
     CITY_INDEX = find_index(headers, CITY_HEADER)
-    LAT_LNG_INDEX = find_index(headers, LAT_LNG_HEADER)
+    LAT_LNG_INDEX = find_index(headers, LAT_LNG_HEADER)  
     
     t = Thread(target=notification_thread)
     t.start()
     return
 
+def configure_app(app):
+    here = os.path.abspath(__file__)
+    config_path = os.path.join(os.path.dirname(here), 'settings_local.py')
+    if os.path.exists(config_path):
+        app.config.from_pyfile(config_path)
+
 def read_worksheet():
-   gc = gspread.login('', '')
-   sht1 = gc.open_by_key('1Y4RXKYvdFKCtf6RMyQCjSS7iN-5AfyedfTbJa_vDO5g')
+   global app
+   
+   gc = gspread.login(app.config['GOOGLE_EMAIL'], app.config['GOOGLE_PASSWORD'])
+   sht1 = gc.open_by_key(app.config['GOOGLE_DRIVE_SHEET_ID'])
    worksheet = sht1.get_worksheet(0)
    return worksheet
 
@@ -96,7 +106,7 @@ def update_cell(row, col, val):
    worksheet.update_cell(row, col, val)
 
 app = Flask(__name__)
-setup()
+setup(app)
 
 @app.route("/get_notifications")
 def get_notifications():
